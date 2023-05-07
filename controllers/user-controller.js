@@ -67,15 +67,6 @@ class UserController {
         }
     }
 
-    async getUsers(req, res, next) {
-        try {
-            const users = await UserService.getAllUsers();
-            return res.json(users);
-        } catch (e) {
-            next(e);
-        }
-    }
-
     async updateUser(req, res, next) {
         try {
             const user = await UserService.updateUser(req.params.id, req.body.data);
@@ -106,8 +97,24 @@ class UserController {
     async getNotifications(req, res, next) {
         try {
             const notifications = await UserService.getNotifications(req.query.id);
-            console.log(notifications)
             return res.json(notifications);
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async getUsers(req, res, next) {
+        try {
+            const users = await UserService.getAllUsers();
+            return res.json(users);
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async getMe(req, res, next) {
+        try {
+            return res.json(req.user);
         } catch (e) {
             next(e)
         }

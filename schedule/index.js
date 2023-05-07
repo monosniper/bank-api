@@ -1,7 +1,10 @@
 const CronJob = require("node-cron");
 const ScheduleModel = require("../models/schedule-model");
 const CardModel = require("../models/card-model");
+const UserModel = require("../models/user-model");
 const NotificationModel = require("../models/notification-model");
+const generateCardNumber = require("../utils/generateCardNumber");
+const generateCardExpiry = require("../utils/generateCardExpiry");
 
 exports.initScheduledJobs = () => {
     const scheduledJobFunction = CronJob.schedule("*/1 * * * *", async () => {
@@ -20,7 +23,17 @@ exports.initScheduledJobs = () => {
                     }
 
                     if (task.data.userId) {
-                        await CardModel.create(task.data)
+                        const card = await CardModel.create({
+                            ...task.data,
+                            number: generateCardNumber(task.data.type).toString(),
+                            expiry: generateCardExpiry()
+                        })
+
+                        await UserModel.findById(task.data.userId).then(user => {
+                            user.cards.push(card);
+                            user.save();
+                        });
+
                         await NotificationModel.create({
                             userId: task.data.userId,
                             title: 'Congrats!',

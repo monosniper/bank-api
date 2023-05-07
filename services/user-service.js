@@ -33,7 +33,7 @@ class UserService {
     }
 
     async login(email, password) {
-        const user = await UserModel.findOne({email: email});
+        const user = await UserModel.findOne({email: email}).populate('cards');
 
         if (!user) {
             throw ApiError.BadRequest('Пользователя с такой почтой не существует');
@@ -72,7 +72,7 @@ class UserService {
             throw ApiError.UnauthorizedError();
         }
 
-        const user = await UserModel.findById(userData.id);
+        const user = await UserModel.findById(userData.id).populate('cards');
         const userDto = new UserDto(user);
         const tokens = await TokenService.generateTokens({...userDto});
 
@@ -84,7 +84,7 @@ class UserService {
     }
 
     async getAllUsers() {
-        const users = await UserModel.find();
+        const users = await UserModel.find().populate('cards');
         const usersDtos = await users.map(user => new UserDto(user));
 
         return usersDtos;

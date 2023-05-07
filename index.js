@@ -44,11 +44,6 @@ const start = async () => {
 
         scheduledFunctions.initScheduledJobs();
 
-        const nots = await NotificationModel.find({})
-        const sch = await ScheduleModel.find({})
-        console.log(nots)
-
-
         await app.listen(PORT, () => {
             console.log('Server started at port ' + PORT);
         })
