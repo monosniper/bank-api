@@ -6,6 +6,7 @@ const axios = require("axios");
 const hmac = require("crypto-js/hmac-sha256");
 const { v4 } = require('uuid');
 const FormData = require('form-data');
+const UserDto = require("../dtos/user-dto");
 
 class UserController {
     async register(req, res, next) {
@@ -55,7 +56,7 @@ class UserController {
 
     async refresh(req, res, next) {
         try {
-            const {refreshToken} = req.cookies;
+            const {refreshToken} = req.headers;
             const userData = await UserService.refresh(refreshToken);
 
             res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: "none", secure: true});
@@ -69,8 +70,21 @@ class UserController {
 
     async updateUser(req, res, next) {
         try {
-            const user = await UserService.updateUser(req.params.id, req.body.data);
-            return res.json(user);
+            const {id, data} = req.body
+            console.log(req.body)
+            if(id) {
+                const user = await UserService.updateUser(id, data);
+                return res.json(new UserDto(user));
+            }
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async changeAvatar(req, res, next) {
+        try {
+            const {user, base64} = req.body
+            return await UserService.changeAvatar(user, base64);
         } catch (e) {
             next(e)
         }
@@ -114,7 +128,17 @@ class UserController {
 
     async getMe(req, res, next) {
         try {
-            return res.json(req.user);
+            const me = await UserService.getMe(req.user.id)
+            return res.json(new UserDto(me));
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async getAvatar(req, res, next) {
+        try {
+            const avatar = await UserService.getAvatar(req.body.user)
+            return res.json(avatar);
         } catch (e) {
             next(e)
         }

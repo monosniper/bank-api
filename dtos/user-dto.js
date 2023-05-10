@@ -2,19 +2,20 @@ const CardDto = require("./card-dto");
 const {cardTypes} = require("../utils/config");
 module.exports = class UserDto {
     id;
-    fio;
+    fullName;
     phone;
     email;
     isAdmin;
-    total_balance;
+    isSuperAdmin;
     cards;
 
     constructor(model) {
         this.id = model._id;
-        this.fio = model.username;
+        this.fullName = model.fullName;
         this.phone = model.phone;
         this.email = model.email;
         this.isAdmin = model.isAdmin;
+        this.isSuperAdmin = model.isSuperAdmin;
         this.cards = this.getCards(model);
         this.balance = this.getBalance(model);
     }

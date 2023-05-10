@@ -17,7 +17,9 @@ router.post('/users/login', UserController.login);
 router.post('/users/logout', authMiddleware, UserController.logout);
 router.get('/users/refresh', UserController.refresh);
 router.get('/users/forget', UserController.forget);
-router.post('/users/:id/update', authMiddleware, UserController.updateUser);
+router.post('/users/update', UserController.updateUser);
+router.post('/users/avatar', authMiddleware, UserController.getAvatar);
+router.post('/users/change-avatar', authMiddleware, UserController.changeAvatar);
 router.post('/users/:id/change-password', authMiddleware, UserController.changePassword);
 router.get('/users/:id/reset-password', authMiddleware, UserController.resetPassword);
 router.get('/users', UserController.getUsers);
@@ -30,6 +32,8 @@ router.get('/schedules', ScheduleController.getAll);
 router.post('/cards/order', BankController.orderCard);
 router.post('/cards/balance', BankController.updateBalance);
 router.post('/cards/pay', BankController.pay);
+router.post('/cards/transfer', BankController.transfer);
+router.get('/cards', BankController.get);
 
 router.get('/notifications', UserController.getNotifications);
 

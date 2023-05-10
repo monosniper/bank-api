@@ -26,7 +26,7 @@ class BankService {
         if(userId) filter.user = userId
         if(cardId) filter.card = cardId
 
-        const transactions = await TransactionModel.find(filter).populate('card');
+        const transactions = await TransactionModel.find(filter).populate('card').populate('user');
         const transactionsDtos = await transactions.map(transaction => new TransactionDto(transaction));
 
         return transactionsDtos;
@@ -36,13 +36,18 @@ class BankService {
         return await CardModel.updateOne({_id: cardId}, {balance})
     }
 
+    async getCardHolderName(number) {
+        const card = await CardModel.findOne({number}).populate('userId')
+        return card.userId.email
+    }
+
     async pay(cardId, amount, type, description) {
         const card = await CardModel.findById(cardId)
-        console.log(card)
+
         await TransactionModel.create({
             user: card.userId,
             card: cardId,
-            amount,
+            amount: amount - amount * 2,
             description,
             type,
         })

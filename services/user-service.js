@@ -1,4 +1,5 @@
 const UserModel = require('../models/user-model');
+const AvatarModel = require('../models/avatar-model');
 const NotificationModel = require('../models/notification-model');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
@@ -7,6 +8,7 @@ const UserDto = require('../dtos/user-dto');
 const NotificationDto = require('../dtos/notification-dto');
 const ApiError = require('../exceptions/api-error');
 const generatePassword = require('password-generator');
+const {avatarBase} = require("../utils/config");
 
 class UserService {
     async register(email, phone, password) {
@@ -21,6 +23,10 @@ class UserService {
         const hashPassword = await bcrypt.hash(password, 1);
 
         const user = await UserModel.create({phone, email, password: hashPassword});
+        await AvatarModel.create({
+            user: user._id,
+            base64: avatarBase
+        });
 
         const userDto = new UserDto(user);
         const tokens = await TokenService.generateTokens({...userDto});
@@ -44,6 +50,13 @@ class UserService {
         if (!isPassEquals) {
             throw ApiError.BadRequest('Данные для входа не верны');
         }
+
+        const avatar = await AvatarModel.findOne({user: user._id});
+
+        if(!avatar) await AvatarModel.create({
+            user: user._id,
+            base64: avatarBase
+        });
 
         const userDto = new UserDto(user);
         const tokens = await TokenService.generateTokens({...userDto});
@@ -98,24 +111,12 @@ class UserService {
     }
 
     async updateUser(id, data) {
-        function validated(data) {
-
-            const validatedData = {};
-
-            Object.entries(data).map(([key, value]) => {
-                if([
-                    'fio',
-                    'email',
-                    'phone',
-                ].indexOf(key) !== -1) validatedData[key] = value;
-            })
-
-            return validatedData;
-        }
-
-        const user = await UserModel.findByIdAndUpdate(id, validated(data), {new: true});
-
+        const user = await UserModel.findByIdAndUpdate(id, data, {new: true, populate: 'cards'});
         return new UserDto(user);
+    }
+
+    async changeAvatar(user, base64) {
+        return AvatarModel.findOneAndUpdate({user}, {base64});
     }
 
     async changePassword(id, data) {
@@ -154,6 +155,14 @@ class UserService {
         }
 
         return new UserDto(user);
+    }
+
+    async getMe(id) {
+        return await UserModel.findById(id).populate('cards')
+    }
+
+    async getAvatar(user) {
+        return await AvatarModel.findOne({user})
     }
 
     async resetPasswordByEmail(email) {
