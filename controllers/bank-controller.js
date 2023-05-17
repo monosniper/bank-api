@@ -1,11 +1,9 @@
 const ScheduleService = require('../services/schedule-service');
 const BankService = require('../services/bank-service');
-const UserService = require("../services/user-service");
 const CardModel = require("../models/card-model");
 const TransactionModel = require("../models/transaction-model");
 const NotificationModel = require("../models/notification-model");
-const {Schema} = require("mongoose");
-const {cardTypes} = require("../utils/config");
+const { cardSubTypes} = require("../utils/config");
 
 class BankController {
     async orderCard(req, res, next) {
@@ -59,8 +57,70 @@ class BankController {
             })
             await NotificationModel.create({
                 userId: recipientCard.userId,
-                title: `You received money from others (${amount / 100} ${cardTypes[recipientCard.type]})`,
+                title: `You received money from others (${amount / 100} ${cardSubTypes[recipientCard.subtype]})`,
                 description: 'Transfer from ' + senderCard.userId.email,
+            })
+
+            return res.json({ok: true})
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async convert(req, res, next) {
+        try {
+            const {
+                fromCardId,
+                toCardId,
+            } = req.body
+
+            const amountFrom = parseFloat(req.body.amountFrom.replace(',', '.')) * 100
+            const amountTo = parseFloat(req.body.amountTo.replace(',', '.')) * 100
+            const fromCard = await CardModel.findById(fromCardId)
+            const toCard = await CardModel.findById(toCardId)
+
+            await BankService.updateBalance(fromCard._id, fromCard.balance - amountFrom)
+            await BankService.updateBalance(toCard._id, toCard.balance + amountTo)
+
+            await TransactionModel.create({
+                user: fromCard.userId,
+                card: fromCard._id,
+                amount: amountFrom - (amountFrom * 2),
+                description: 'Convert to ' + toCard.number,
+                type: 'Convert',
+            })
+            await TransactionModel.create({
+                user: fromCard.userId,
+                card: toCard._id,
+                amount: amountTo,
+                description: 'Convert from ' + fromCard.number,
+                type: 'Convert',
+            })
+
+            return res.json({ok: true})
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async withdraw(req, res, next) {
+        try {
+            const {
+                crypto,
+                cardId,
+            } = req.body
+
+            const amount = req.body.amount * 100
+            const card = await CardModel.findById(cardId)
+
+            await BankService.updateBalance(cardId, card.balance - amount)
+
+            await TransactionModel.create({
+                user: card.userId,
+                card: cardId,
+                amount: amount - (amount * 2),
+                description: `Withdraw ${amount} ${cardSubTypes[card.subtype]} -> ${crypto}`,
+                type: 'Withdraw',
             })
 
             return res.json({ok: true})
@@ -83,6 +143,27 @@ class BankController {
         try {
             const {number} = req.query
             const card = await CardModel.findOne({number}).populate('userId');
+            return res.json(card);
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async updateCard(req, res, next) {
+        try {
+            const {id, data} = req.body
+            const card = await BankService.updateCard(id, data);
+            return res.json(card);
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async deleteCard(req, res, next) {
+        console.log('hello')
+        console.log(req.params)
+        try {
+            const card = await BankService.deleteCard(req.params.id);
             return res.json(card);
         } catch (e) {
             next(e)

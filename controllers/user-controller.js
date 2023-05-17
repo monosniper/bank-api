@@ -71,7 +71,7 @@ class UserController {
     async updateUser(req, res, next) {
         try {
             const {id, data} = req.body
-            console.log(req.body)
+
             if(id) {
                 const user = await UserService.updateUser(id, data);
                 return res.json(new UserDto(user));
@@ -90,9 +90,36 @@ class UserController {
         }
     }
 
+    async id(req, res, next) {
+        try {
+            const {user, photos} = req.body
+            return await UserService.id(user, photos);
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async idSuccess(req, res, next) {
+        try {
+            return await UserService.idSuccess(req.body.id);
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async idReject(req, res, next) {
+        try {
+            return await UserService.idReject(req.body.id);
+        } catch (e) {
+            next(e)
+        }
+    }
+
     async changePassword(req, res, next) {
         try {
-            const user = await UserService.changePassword(req.params.id, {oldPassword: req.body.oldPassword, newPassword: req.body.newPassword});
+            const {id, data} = req.body
+            const {oldPassword, newPassword} = data
+            const user = await UserService.changePassword(id, {oldPassword, newPassword});
             return res.json(user);
         } catch (e) {
             next(e)
@@ -117,10 +144,27 @@ class UserController {
         }
     }
 
+    async readNotifications(req, res, next) {
+        try {
+            return await UserService.readNotifications(req.query.userId)
+        } catch (e) {
+            next(e)
+        }
+    }
+
     async getUsers(req, res, next) {
         try {
             const users = await UserService.getAllUsers();
             return res.json(users);
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async getIds(req, res, next) {
+        try {
+            const ids = await UserService.getAllIds();
+            return res.json(ids);
         } catch (e) {
             next(e)
         }

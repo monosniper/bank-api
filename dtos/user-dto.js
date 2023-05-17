@@ -1,5 +1,5 @@
 const CardDto = require("./card-dto");
-const {cardTypes} = require("../utils/config");
+const {cardTypes, cardSubTypes} = require("../utils/config");
 module.exports = class UserDto {
     id;
     fullName;
@@ -7,6 +7,7 @@ module.exports = class UserDto {
     email;
     isAdmin;
     isSuperAdmin;
+    isIdentified;
     cards;
 
     constructor(model) {
@@ -16,6 +17,7 @@ module.exports = class UserDto {
         this.email = model.email;
         this.isAdmin = model.isAdmin;
         this.isSuperAdmin = model.isSuperAdmin;
+        this.isIdentified = model.isIdentified;
         this.cards = this.getCards(model);
         this.balance = this.getBalance(model);
     }
@@ -31,8 +33,8 @@ module.exports = class UserDto {
             rub: 0,
         }
 
-        model.cards.forEach(({balance, type}) => {
-            UserBalance[cardTypes[type]] += balance
+        model.cards.forEach(({balance, subtype}) => {
+            UserBalance[cardSubTypes[subtype]] += balance
         })
 
         return UserBalance;

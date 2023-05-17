@@ -20,6 +20,9 @@ exports.initScheduledJobs = () => {
                         'mastercard': "MasterCard",
                         'mir_standard': "Mir Standard",
                         'mir_plus': "Mir Plus",
+                        'universal_usd': "Universal (USD)",
+                        'universal_uah': "Universal (UAH)",
+                        'universal_rub': "Universal (RUB)",
                     }
 
                     if (task.data.userId) {

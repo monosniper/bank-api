@@ -1,4 +1,5 @@
 const {Schema, model} = require('mongoose');
+const {cardSubTypes, cardTypes} = require("../utils/config");
 
 const CardSchema = new Schema({
     userId: {type: Schema.Types.ObjectId, ref: 'User'},
@@ -8,23 +9,12 @@ const CardSchema = new Schema({
     },
     type: {
         type: String,
-        enum : [
-            'visa',
-            'mastercard',
-            'mir',
-        ],
+        enum : Object.keys(cardTypes),
         required: true
     },
     subtype: {
         type: String,
-        enum : [
-            'visa_classic',
-            'visa_gold',
-            'visa_platinum',
-            'mastercard',
-            'mir_standard',
-            'mir_plus',
-        ],
+        enum : Object.keys(cardSubTypes),
         required: true
     },
     balance: {type: Number, default: 0},

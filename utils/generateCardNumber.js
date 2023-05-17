@@ -7,9 +7,10 @@ function generateCardNumber(type) {
         visa: '4784',
         mastercard: '5784',
         mir: '2784',
+        universal: '0000',
     }
 
-    return parseInt(types[type] + randomBetween(100000000000, 999999999999))
+    return types[type] + randomBetween(100000000000, 999999999999)
 }
 
 module.exports = generateCardNumber

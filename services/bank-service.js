@@ -1,25 +1,9 @@
-const UserModel = require('../models/user-model');
 const TransactionModel = require('../models/transaction-model');
 const CardModel = require('../models/card-model');
 require('dotenv').config();
-const TokenService = require('./token-service');
-const UserDto = require('../dtos/user-dto');
 const TransactionDto = require('../dtos/transaction-dto');
 
 class BankService {
-    async registerCard(data) {
-        const user = await UserModel.create({phone, email, password: hashPassword});
-
-        const userDto = new UserDto(user);
-        const tokens = await TokenService.generateTokens({...userDto});
-
-        await TokenService.saveToken(userDto.id, tokens.refreshToken);
-
-        return {
-            ...tokens, user: userDto
-        };
-    }
-
     async getTransactions(userId, cardId) {
         const filter = {}
 
@@ -39,6 +23,14 @@ class BankService {
     async getCardHolderName(number) {
         const card = await CardModel.findOne({number}).populate('userId')
         return card.userId.email
+    }
+
+    async updateCard(id, data) {
+        return CardModel.updateOne({_id: id}, data);
+    }
+
+    async deleteCard(_id) {
+        return CardModel.deleteOne({_id});
     }
 
     async pay(cardId, amount, type, description) {

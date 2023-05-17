@@ -9,6 +9,7 @@ const fileUpload = require('express-fileupload');
 const scheduledFunctions = require("./schedule");
 const NotificationModel = require("./models/notification-model");
 const ScheduleModel = require("./models/schedule-model");
+const generateCardNumber = require("./utils/generateCardNumber");
 
 const PORT = process.env.PORT || 5000;
 
