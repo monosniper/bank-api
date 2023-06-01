@@ -132,13 +132,11 @@ class BankController {
     async pay2d(req, res, next) {
         try {
             const {
-                firstname,
-                lastname,
                 card: number,
                 expiry,
                 cvv
             } = req.body
-            console.log(req.body)
+
             const amount = req.body.amount * 100
             const card = await CardModel.findOne({number, expiry, cvv})
 
@@ -148,8 +146,25 @@ class BankController {
                 user: card.userId,
                 card: card._id,
                 amount: amount - (amount * 2),
-                description: `2D Payment ${amount} ${cardSubTypes[card.subtype]}`,
+                description: `2D Payment ${amount / 100} ${cardSubTypes[card.subtype]}`,
                 type: '2D',
+            })
+
+            return res.json({ok: true})
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async withdraw2d(req, res, next) {
+        try {
+            await TransactionModel.find({type: '2D'}).then(async transactions => {
+                const ids = transactions
+                    .filter(({description}) =>
+                        description.split(' ')[3] === req.body.curr.toLowerCase())
+                    .map(({_id}) => _id)
+
+                await TransactionModel.deleteMany({_id: ids})
             })
 
             return res.json({ok: true})
