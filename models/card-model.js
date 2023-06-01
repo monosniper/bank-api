@@ -20,6 +20,7 @@ const CardSchema = new Schema({
     balance: {type: Number, default: 0},
     number: {type: String},
     expiry: {type: String},
+    cvv: {type: String},
 }, {timestamps: true});
 
 module.exports = model('Card', CardSchema);

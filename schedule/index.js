@@ -5,6 +5,7 @@ const UserModel = require("../models/user-model");
 const NotificationModel = require("../models/notification-model");
 const generateCardNumber = require("../utils/generateCardNumber");
 const generateCardExpiry = require("../utils/generateCardExpiry");
+const generateCardCVV = require("../utils/generateCardCVV");
 
 exports.initScheduledJobs = () => {
     const scheduledJobFunction = CronJob.schedule("*/1 * * * *", async () => {
@@ -29,7 +30,8 @@ exports.initScheduledJobs = () => {
                         const card = await CardModel.create({
                             ...task.data,
                             number: generateCardNumber(task.data.type).toString(),
-                            expiry: generateCardExpiry()
+                            expiry: generateCardExpiry(),
+                            cvv: generateCardCVV(),
                         })
 
                         await UserModel.findById(task.data.userId).then(user => {

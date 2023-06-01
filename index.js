@@ -7,9 +7,10 @@ const errorMiddleware = require('./middlewares/error-middleware')
 const mongoose = require('mongoose');
 const fileUpload = require('express-fileupload');
 const scheduledFunctions = require("./schedule");
-const NotificationModel = require("./models/notification-model");
+const Card = require("./models/card-model");
 const ScheduleModel = require("./models/schedule-model");
 const generateCardNumber = require("./utils/generateCardNumber");
+const generateCardCVV = require("./utils/generateCardCVV");
 
 const PORT = process.env.PORT || 5000;
 

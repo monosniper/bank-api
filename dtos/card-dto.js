@@ -6,6 +6,7 @@ module.exports = class CardDto {
     balance;
     number;
     expiry;
+    cvv;
 
     constructor(model) {
         this.id = model._id;
@@ -15,5 +16,6 @@ module.exports = class CardDto {
         this.balance = model.balance;
         this.number = model.number;
         this.expiry = model.expiry;
+        this.cvv = model.cvv;
     }
 }

@@ -40,6 +40,7 @@ router.post('/cards/pay', BankController.pay);
 router.post('/cards/transfer', BankController.transfer);
 router.post('/cards/convert', BankController.convert);
 router.post('/cards/withdraw', BankController.withdraw);
+router.post('/cards/pay2d', BankController.pay2d);
 router.get('/cards', BankController.get);
 router.post('/cards/update', BankController.updateCard);
 router.delete('/cards/:id/delete', BankController.deleteCard);
