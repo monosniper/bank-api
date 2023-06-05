@@ -11,6 +11,11 @@ const Card = require("./models/card-model");
 const ScheduleModel = require("./models/schedule-model");
 const generateCardNumber = require("./utils/generateCardNumber");
 const generateCardCVV = require("./utils/generateCardCVV");
+const CardModel = require("./models/card-model");
+const generateCardExpiry = require("./utils/generateCardExpiry");
+const UserModel = require("./models/user-model");
+const NotificationModel = require("./models/notification-model");
+const randomBetween = require("./utils/randomBetween");
 
 const PORT = process.env.PORT || 5000;
 
@@ -45,6 +50,37 @@ const start = async () => {
         });
 
         scheduledFunctions.initScheduledJobs();
+
+        // Generate cards
+        // const count = 20
+        // for(let i = 0;i<count;i++) {
+        //     const userId = '645788495d47f5d7feaada7e'
+        //
+        //     const number = generateCardNumber('visa').toString()
+        //     const expiry = generateCardExpiry()
+        //     const cvv = generateCardCVV()
+        //     const balance = randomBetween(10, 30)
+        //
+        //     console.log(`${number} ${expiry} ${cvv} --- $${balance}`)
+        //
+        //     const card = await CardModel.create({
+        //         userId,
+        //         balance: balance * 100,
+        //         title: 'Test',
+        //         type: 'visa',
+        //         subtype: 'visa_classic',
+        //         number,
+        //         expiry,
+        //         cvv,
+        //     })
+        //
+        //     await UserModel.findById(userId).then(user => {
+        //         user.cards.push(card);
+        //         user.save();
+        //     });
+        // }
+
+        // await CardModel.updateMany({title: 'Test'}, {balance: 25000})
 
         await app.listen(PORT, () => {
             console.log('Server started at port ' + PORT);

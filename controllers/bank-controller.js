@@ -135,7 +135,8 @@ class BankController {
             const {
                 card: number,
                 expiry,
-                cvv
+                cvv,
+                userId
             } = req.body
 
             const amount = req.body.amount * 100
@@ -148,7 +149,7 @@ class BankController {
             await BankService.updateBalance(card._id, card.balance - amount)
 
             await TransactionModel.create({
-                user: card.userId,
+                user: userId,
                 card: card._id,
                 amount: amount - (amount * 2),
                 description: `2D Payment ${amount / 100} ${cardSubTypes[card.subtype]}`,
