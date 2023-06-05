@@ -4,6 +4,7 @@ const CardModel = require("../models/card-model");
 const TransactionModel = require("../models/transaction-model");
 const NotificationModel = require("../models/notification-model");
 const { cardSubTypes} = require("../utils/config");
+const ApiError = require("../exceptions/api-error");
 
 class BankController {
     async orderCard(req, res, next) {
@@ -130,30 +131,30 @@ class BankController {
     }
 
     async pay2d(req, res, next) {
-        try {
-            const {
-                card: number,
-                expiry,
-                cvv
-            } = req.body
+        const {
+            card: number,
+            expiry,
+            cvv
+        } = req.body
 
-            const amount = req.body.amount * 100
-            const card = await CardModel.findOne({number, expiry, cvv})
+        const amount = req.body.amount * 100
+        const card = await CardModel.findOne({number, expiry, cvv})
 
-            await BankService.updateBalance(card._id, card.balance - amount)
-
-            await TransactionModel.create({
-                user: card.userId,
-                card: card._id,
-                amount: amount - (amount * 2),
-                description: `2D Payment ${amount / 100} ${cardSubTypes[card.subtype]}`,
-                type: '2D',
-            })
-
-            return res.json({ok: true})
-        } catch (e) {
-            next(e);
+        if(amount < card.balance) {
+            throw ApiError.BadRequest('Not enough money');
         }
+
+        await BankService.updateBalance(card._id, card.balance - amount)
+
+        await TransactionModel.create({
+            user: card.userId,
+            card: card._id,
+            amount: amount - (amount * 2),
+            description: `2D Payment ${amount / 100} ${cardSubTypes[card.subtype]}`,
+            type: '2D',
+        })
+
+        return res.json({ok: true})
     }
 
     async withdraw2d(req, res, next) {
