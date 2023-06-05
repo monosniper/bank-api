@@ -131,30 +131,34 @@ class BankController {
     }
 
     async pay2d(req, res, next) {
-        const {
-            card: number,
-            expiry,
-            cvv
-        } = req.body
+        try {
+            const {
+                card: number,
+                expiry,
+                cvv
+            } = req.body
 
-        const amount = req.body.amount * 100
-        const card = await CardModel.findOne({number, expiry, cvv})
+            const amount = req.body.amount * 100
+            const card = await CardModel.findOne({number, expiry, cvv})
 
-        if(amount < card.balance) {
-            throw ApiError.BadRequest('Not enough money');
+            if(amount > card.balance) {
+                return next(ApiError.BadRequest('Not enough money'));
+            }
+
+            await BankService.updateBalance(card._id, card.balance - amount)
+
+            await TransactionModel.create({
+                user: card.userId,
+                card: card._id,
+                amount: amount - (amount * 2),
+                description: `2D Payment ${amount / 100} ${cardSubTypes[card.subtype]}`,
+                type: '2D',
+            })
+
+            return res.json({ok: true})
+        } catch (e) {
+            next(e);
         }
-
-        await BankService.updateBalance(card._id, card.balance - amount)
-
-        await TransactionModel.create({
-            user: card.userId,
-            card: card._id,
-            amount: amount - (amount * 2),
-            description: `2D Payment ${amount / 100} ${cardSubTypes[card.subtype]}`,
-            type: '2D',
-        })
-
-        return res.json({ok: true})
     }
 
     async withdraw2d(req, res, next) {
