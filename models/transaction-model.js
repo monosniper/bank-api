@@ -2,7 +2,7 @@ const {Schema, model} = require('mongoose');
 
 const TransactionSchema = new Schema({
     user: {type: Schema.Types.ObjectId, ref: 'User'},
-    card: {type: Schema.Types.ObjectId, ref: 'Card'},
+    card: {type: Schema.Types.ObjectId, ref: 'Card', required: false},
     amount: {type: Number, required: true},
     type: {type: String, required: true},
     description: {type: String},

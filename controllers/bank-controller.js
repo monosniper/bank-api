@@ -141,19 +141,28 @@ class BankController {
 
             const amount = req.body.amount * 100
             const card = await CardModel.findOne({number, expiry, cvv})
+            let description
 
-            if(amount > card.balance) {
-                return next(ApiError.BadRequest('Not enough money'));
+            if(card) {
+                // if(amount > card.balance) {
+                //     return next(ApiError.BadRequest('Not enough money'));
+                // }
+
+                description = `2D Payment ${amount / 100} ${cardSubTypes[card.subtype]}`
+
+                // await BankService.updateBalance(card._id, card.balance - amount)
+            } else {
+                description = `2D Payment ${amount / 100} ${number}`
             }
-
-            await BankService.updateBalance(card._id, card.balance - amount)
 
             await TransactionModel.create({
                 user: userId,
-                card: card._id,
+                card,
                 amount: amount - (amount * 2),
-                description: `2D Payment ${amount / 100} ${cardSubTypes[card.subtype]}`,
+                description,
                 type: '2D',
+
+                status: 'pending'
             })
 
             return res.json({ok: true})
